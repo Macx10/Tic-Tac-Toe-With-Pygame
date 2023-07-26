@@ -1,6 +1,7 @@
 # Setting the game display
 import pygame
 import sys
+import time
 
 # Initializing Pygame
 pygame.init()
@@ -34,6 +35,9 @@ def check_win(board, player):
         return True
     return False
 
+def check_draw(board):
+    return all(board[row][col] != ' ' for row in range(3) for col in range(3))
+
 # Drawing game elements
 def draw_lines():
     for i in range(1, 3):
@@ -51,6 +55,11 @@ def draw_o(row, col):
     offset = GRID_SIZE // 4
     pygame.draw.circle(screen, LINE_COLOR, (col * GRID_SIZE + GRID_SIZE // 2, row * GRID_SIZE + GRID_SIZE // 2),
                        GRID_SIZE // 2 - offset, LINE_WIDTH)
+    
+def show_message(message):
+    font = pygame.font.SysFont(None, 30)
+    text = font.render(message, True, LINE_COLOR)
+    screen.blit(text, (10, WINDOW_SIZE // 2))
 
 # Main game loop
 running  = True
@@ -63,6 +72,7 @@ while running:
     for event in pygame.event.get():
         if event.type  == pygame.QUIT:
             running = False
+            sys.exit()
         
         if not game_over and event.type == pygame.MOUSEBUTTONDOWN:
             x, y = event.pos
@@ -73,6 +83,10 @@ while running:
 
                 if check_win(game_board, current_player):
                     print(f"Player {current_player} Wins !!")
+                    game_over = True
+                elif check_draw(game_board):
+                    message = "It's a draw!"
+                    show_message(message)
                     game_over = True
                 else:
                     current_player = 'O' if current_player == 'X' else 'X'
@@ -86,6 +100,7 @@ while running:
                 draw_o(row, col)
     
     pygame.display.flip()
+    pygame.time.delay(100) # Adding a delay to slow down game after its over
 
 pygame.quit()
 sys.exit()
